@@ -48,6 +48,63 @@ def test_get_accounts(tmp_path):
     assert finance.get_accounts("item-2")["itemId"] == "item-2"
 
 
+def test_get_balances(tmp_path):
+    finance, gateway = _finance(tmp_path)
+    gateway.balances_result = {
+        "accounts": [
+            {
+                "account_id": "acc-1",
+                "name": "360 Checking",
+                "official_name": "360 Checking",
+                "type": "depository",
+                "subtype": "checking",
+                "mask": "5261",
+                "balances": {
+                    "current": 1196.2,
+                    "available": 45.46,
+                    "limit": None,
+                    "iso_currency_code": "USD",
+                    "last_updated_datetime": "2026-10-10T18:00:00Z",
+                },
+            }
+        ]
+    }
+    result = finance.get_balances()
+    assert result["itemId"] == "item-1"
+    account = result["accounts"][0]
+    assert account["balances"]["available"] == 45.46
+    assert account["lastUpdatedDatetime"] == "2026-10-10T18:00:00Z"
+    assert gateway.calls == [("accounts_balance_get", "access-1", None)]
+
+    gateway.balances_result = {"accounts": [{"account_id": "acc-2", "name": "Other"}]}
+    filtered = finance.get_balances("item-2", account_ids=[" acc-2 "])
+    assert filtered["itemId"] == "item-2"
+    assert gateway.calls[1] == ("accounts_balance_get", "access-2", ["acc-2"])
+
+
+def test_get_balances_rejects_bad_input(tmp_path):
+    finance, _gateway = _finance(tmp_path)
+    with pytest.raises(PlaidMcpError, match="account_ids must be a list"):
+        finance.get_balances(account_ids="acc-1")
+    with pytest.raises(PlaidMcpError, match="account_ids must not be empty"):
+        finance.get_balances(account_ids=[])
+    with pytest.raises(PlaidMcpError, match="account_id is required"):
+        finance.get_balances(account_ids=["  "])
+
+
+def test_get_balances_rejects_a_bad_payload(tmp_path):
+    finance, gateway = _finance(tmp_path)
+    gateway.balances_result = {"accounts": "nope"}
+    with pytest.raises(PlaidMcpError, match="accounts must be a list"):
+        finance.get_balances()
+    gateway.balances_result = {"accounts": ["nope"]}
+    with pytest.raises(PlaidMcpError, match="accounts must be an object"):
+        finance.get_balances()
+    gateway.balances_result = {"accounts": [{"balances": "nope"}]}
+    with pytest.raises(PlaidMcpError, match="balances must be an object"):
+        finance.get_balances()
+
+
 def test_get_accounts_rejects_a_bad_payload(tmp_path):
     finance, gateway = _finance(tmp_path)
     gateway.accounts_result = {"accounts": "nope"}

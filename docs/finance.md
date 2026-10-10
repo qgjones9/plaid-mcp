@@ -32,6 +32,40 @@ Calls `/accounts/get`.
 
 The ids in that example are shapes, not live account ids.
 
+## get_balances
+
+Calls `/accounts/balance/get`. This requests live balances from the institution. Use it when you need `available` or up-to-the-minute `current`. `get_accounts` stays on cached `/accounts/get`.
+
+| Parameter | Purpose |
+| --- | --- |
+| `item_id` | Optional |
+| `account_ids` | Optional list of Plaid account ids. Omit to refresh every account on the item. An empty list is an error. |
+
+```json
+{
+  "itemId": "item-id",
+  "accounts": [
+    {
+      "accountId": "account-id",
+      "name": "360 Checking",
+      "officialName": "360 Checking",
+      "type": "depository",
+      "subtype": "checking",
+      "mask": "5261",
+      "lastUpdatedDatetime": "2026-10-10T18:00:00Z",
+      "balances": {
+        "current": 1196.2,
+        "available": 45.46,
+        "limit": null,
+        "isoCurrencyCode": "USD"
+      }
+    }
+  ]
+}
+```
+
+`lastUpdatedDatetime` appears only when Plaid sent `last_updated_datetime`. `available` may still be `null` when the institution does not provide it.
+
 ## get_transactions
 
 Calls `/transactions/get`.

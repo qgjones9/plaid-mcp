@@ -10,19 +10,19 @@ Plaid only. Do not add Calendar, Gmail, Drive, Docs, Tasks, or Sheets tools. Tho
 
 Python only. Do not add Node.js.
 
-Implemented tools are `get_accounts`, `get_transactions`, and `get_liabilities`.
+Implemented tools are `get_accounts`, `get_balances`, `get_transactions`, and `get_liabilities`.
 
-They call Plaid `/accounts/get`, `/transactions/get`, and `/liabilities/get`.
+They call Plaid `/accounts/get`, `/accounts/balance/get`, `/transactions/get`, and `/liabilities/get`.
 
-`get_accounts` returns balances for the default linked item unless `item_id` is set.
+`get_accounts` returns cached balances for the default linked item unless `item_id` is set.
+
+`get_balances` returns live balances from the institution. `account_ids` is an optional list of Plaid account ids. Omit it to refresh every account on the item. An empty `account_ids` list is an error.
 
 `get_transactions` requires `start_date` and `end_date` as `YYYY-MM-DD`. `count` is from 1 to 500 and defaults to 100. `offset` defaults to 0. `start_date` must be on or before `end_date`.
 
 `get_liabilities` returns credit, mortgage, and student groups. Empty groups are omitted.
 
 `item_id` is optional on every tool. Omit it to use the default linked item. A blank `item_id` is an error.
-
-Do not add tools beyond this list.
 
 `plaid-mcp-link` is a host command, not an MCP tool. It runs Plaid Link once and writes `items.json`. Do not register it on the MCP server.
 

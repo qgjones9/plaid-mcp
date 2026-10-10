@@ -15,7 +15,7 @@ That writes `~/.config/plaid-mcp/items.json` next to `credentials.json`.
 A push to `main` publishes an image when `plaid_mcp/`, `Dockerfile`, or `pyproject.toml` changed. The version tag matches `pyproject.toml` and `CHANGELOG.md`. A docs-only push does not publish an image.
 
 ```text
-ghcr.io/qgjones9/plaid-mcp:0.0.1
+ghcr.io/qgjones9/plaid-mcp:0.0.2
 ```
 
 The package page is [plaid-mcp](https://github.com/qgjones9/plaid-mcp/pkgs/container/plaid-mcp). The first publish is private. In the package settings on GitHub, set the package to public so it can be pulled without a token. A public package cannot be made private again.

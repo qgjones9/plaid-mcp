@@ -2,7 +2,9 @@
 
 This server lets an agent read Plaid data. It does not link a bank by itself, and it does not move money.
 
-The tools are `get_accounts`, `get_transactions`, and `get_liabilities`. They call `/accounts/get`, `/transactions/get`, and `/liabilities/get`.
+The tools are `get_accounts`, `get_balances`, `get_transactions`, and `get_liabilities`. They call `/accounts/get`, `/accounts/balance/get`, `/transactions/get`, and `/liabilities/get`.
+
+`get_accounts` is cached. `get_balances` requests live balances, including `available` when the institution sends it.
 
 Link a bank with `plaid-mcp-link` on the host. That command writes `items.json` next to `credentials.json`. The first linked item is the default. Pass `item_id` when you want a different one.
 

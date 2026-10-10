@@ -5,6 +5,7 @@ Public Python MCP server for Plaid. An agent can read account balances, transact
 Tools:
 
 - `get_accounts`
+- `get_balances`
 - `get_transactions`
 - `get_liabilities`
 
@@ -34,7 +35,7 @@ python -m plaid_mcp
 
 Use the `python` from the environment where this package is installed.
 
-To run that same server in a container, see `docs/docker.md`. `compose.yaml` publishes `127.0.0.1:8006` and starts `ghcr.io/qgjones9/plaid-mcp:0.0.1`. Point Cursor at `http://127.0.0.1:8006/mcp`. Credentials stay on the host and are mounted in. Plaid Link stays on the host. The browser page cannot finish inside Docker.
+To run that same server in a container, see `docs/docker.md`. `compose.yaml` publishes `127.0.0.1:8006` and starts `ghcr.io/qgjones9/plaid-mcp:0.0.2`. Point Cursor at `http://127.0.0.1:8006/mcp`. Credentials stay on the host and are mounted in. Plaid Link stays on the host. The browser page cannot finish inside Docker.
 
 ## Coverage
 

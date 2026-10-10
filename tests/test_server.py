@@ -26,12 +26,15 @@ def _finance(tmp_path) -> tuple[PlaidFinance, FakeGateway]:
 def test_version_matches_pyproject():
     project = tomllib.loads(Path("pyproject.toml").read_text())
     assert plaid_mcp.__version__ == project["project"]["version"]
-    assert plaid_mcp.__version__ == "0.0.1"
+    assert plaid_mcp.__version__ == "0.0.2"
 
 
 def test_tools_delegate_to_finance(tmp_path):
     finance, gateway = _finance(tmp_path)
     gateway.accounts_result = {"accounts": [{"account_id": "acc-1", "name": "Checking"}]}
+    gateway.balances_result = {
+        "accounts": [{"account_id": "acc-1", "name": "Checking", "balances": {"available": 45.46}}]
+    }
     gateway.transactions_result = {
         "transactions": [{"transaction_id": "tx-1", "amount": 5}],
         "total_transactions": 1,
@@ -40,21 +43,24 @@ def test_tools_delegate_to_finance(tmp_path):
     tools = make_tools(finance)
 
     accounts = tools["get_accounts"]()
+    balances = tools["get_balances"](account_ids=["acc-1"])
     transactions = tools["get_transactions"]("2026-10-01", "2026-10-02", 10, 1, "item-1")
     liabilities = tools["get_liabilities"]("item-1")
 
     assert accounts["accounts"][0]["accountId"] == "acc-1"
+    assert balances["accounts"][0]["balances"]["available"] == 45.46
     assert transactions["transactions"][0]["amount"] == 5
     assert liabilities["credit"][0]["accountId"] == "card-1"
-    assert gateway.calls[1][4] == 10
-    assert gateway.calls[1][5] == 1
+    assert gateway.calls[1] == ("accounts_balance_get", "access-1", ["acc-1"])
+    assert gateway.calls[2][4] == 10
+    assert gateway.calls[2][5] == 1
 
 
 def test_server_registers_each_plaid_tool(tmp_path):
     finance, _gateway = _finance(tmp_path)
     server = build_server(finance, host="0.0.0.0", port=8016)
     names = {tool.name for tool in server._tool_manager.list_tools()}
-    assert names == {"get_accounts", "get_transactions", "get_liabilities"}
+    assert names == {"get_accounts", "get_balances", "get_transactions", "get_liabilities"}
     assert server.settings.host == "0.0.0.0"
     assert server.settings.port == 8016
 

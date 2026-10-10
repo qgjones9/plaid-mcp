@@ -27,6 +27,17 @@ def make_tools(finance: PlaidFinance) -> dict:
         """
         return finance.get_accounts(item_id)
 
+    def get_balances(
+        item_id: str | None = None,
+        account_ids: list[str] | None = None,
+    ) -> dict:
+        """Fetch live balances with /accounts/balance/get.
+
+        item_id is optional. Omit it to use the default linked item.
+        account_ids is optional. Omit it to refresh every account on the item.
+        """
+        return finance.get_balances(item_id, account_ids)
+
     def get_transactions(
         start_date: str,
         end_date: str,
@@ -58,6 +69,7 @@ def make_tools(finance: PlaidFinance) -> dict:
 
     return {
         "get_accounts": get_accounts,
+        "get_balances": get_balances,
         "get_transactions": get_transactions,
         "get_liabilities": get_liabilities,
     }

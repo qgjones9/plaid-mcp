@@ -1,6 +1,6 @@
 services:
   plaid-mcp:
-    image: ghcr.io/qgjones9/plaid-mcp:0.0.1
+    image: ghcr.io/qgjones9/plaid-mcp:0.0.2
     build: .
     restart: unless-stopped
     ports:

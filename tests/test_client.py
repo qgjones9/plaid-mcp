@@ -34,6 +34,21 @@ def test_gateway_calls_accounts_transactions_and_liabilities():
     assert api.calls[2][1].access_token == "access-1"
 
 
+def test_gateway_calls_accounts_balance_get():
+    api = FakePlaidApi()
+    api.balances_response = {"accounts": [{"account_id": "acc-1"}]}
+    gateway = PlaidGateway(api)
+
+    all_accounts = gateway.accounts_balance_get("access-1", None)
+    one_account = gateway.accounts_balance_get("access-1", ["acc-1"])
+
+    assert all_accounts == {"accounts": [{"account_id": "acc-1"}]}
+    assert one_account == {"accounts": [{"account_id": "acc-1"}]}
+    assert api.calls[0][1].access_token == "access-1"
+    assert api.calls[0][1].get("options") is None
+    assert api.calls[1][1].options.account_ids == ["acc-1"]
+
+
 def test_gateway_creates_and_exchanges_a_link_token():
     api = FakePlaidApi()
     gateway = PlaidGateway(api)

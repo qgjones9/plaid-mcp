@@ -1,6 +1,6 @@
 [project]
 name = "plaid-mcp"
-version = "0.0.1"
+version = "0.0.2"
 description = "Public Python MCP server for Plaid."
 readme = "README.md"
 requires-python = ">=3.11"

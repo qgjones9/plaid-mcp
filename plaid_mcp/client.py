@@ -2,6 +2,8 @@
 
 import plaid
 from plaid.api import plaid_api
+from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
+from plaid.model.accounts_balance_get_request_options import AccountsBalanceGetRequestOptions
 from plaid.model.accounts_get_request import AccountsGetRequest
 from plaid.model.country_code import CountryCode
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
@@ -32,6 +34,15 @@ class PlaidGateway:
         """Call /accounts/get."""
         request = AccountsGetRequest(access_token=access_token)
         return payload_dict(self._api.accounts_get(request))
+
+    def accounts_balance_get(self, access_token: str, account_ids: list[str] | None) -> dict:
+        """Call /accounts/balance/get."""
+        if account_ids is None:
+            request = AccountsBalanceGetRequest(access_token=access_token)
+        else:
+            options = AccountsBalanceGetRequestOptions(account_ids=account_ids)
+            request = AccountsBalanceGetRequest(access_token=access_token, options=options)
+        return payload_dict(self._api.accounts_balance_get(request))
 
     def transactions_get(
         self,

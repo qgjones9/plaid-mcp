@@ -2,7 +2,7 @@
 
 from plaid_mcp.errors import PlaidMcpError
 from plaid_mcp.items import ItemStore
-from plaid_mcp.validate import bounded_int, iso_date
+from plaid_mcp.validate import bounded_int, iso_date, required_text
 
 
 class PlaidFinance:
@@ -17,6 +17,18 @@ class PlaidFinance:
         item = self._items.resolve(item_id)
         payload = self._gateway.accounts_get(item.access_token)
         accounts = _account_rows(payload.get("accounts"))
+        return {"itemId": item.item_id, "accounts": accounts}
+
+    def get_balances(
+        self,
+        item_id: str | None = None,
+        account_ids: list[str] | None = None,
+    ) -> dict:
+        """Return live balances for each account on the item."""
+        item = self._items.resolve(item_id)
+        filtered = _account_id_list(account_ids)
+        payload = self._gateway.accounts_balance_get(item.access_token, filtered)
+        accounts = _balance_account_rows(payload.get("accounts"))
         return {"itemId": item.item_id, "accounts": accounts}
 
     def get_transactions(
@@ -65,11 +77,29 @@ class PlaidFinance:
         return result
 
 
+def _account_id_list(value: list[str] | None) -> list[str] | None:
+    if value is None:
+        return None
+    if not isinstance(value, list):
+        raise PlaidMcpError("account_ids must be a list")
+    if not value:
+        raise PlaidMcpError("account_ids must not be empty")
+    return [required_text(entry, "account_id") for entry in value]
+
+
 def _account_rows(value: object) -> list:
     rows = []
     for row in _row_list(value, "accounts"):
         account = _object(row, "accounts")
         rows.append(_account_view(account))
+    return rows
+
+
+def _balance_account_rows(value: object) -> list:
+    rows = []
+    for row in _row_list(value, "accounts"):
+        account = _object(row, "accounts")
+        rows.append(_balance_account_view(account))
     return rows
 
 
@@ -91,6 +121,17 @@ def _account_view(account: dict) -> dict:
             "isoCurrencyCode": balances.get("iso_currency_code"),
         },
     }
+
+
+def _balance_account_view(account: dict) -> dict:
+    view = _account_view(account)
+    balances = _optional_object(account.get("balances"), "balances")
+    if balances is None:
+        return view
+    last_updated = balances.get("last_updated_datetime")
+    if last_updated is not None:
+        view["lastUpdatedDatetime"] = last_updated
+    return view
 
 
 def _transaction_rows(value: object) -> list:

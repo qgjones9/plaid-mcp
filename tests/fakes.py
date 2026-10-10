@@ -9,6 +9,7 @@ class FakeGateway:
     def __init__(self) -> None:
         self.calls: list[tuple] = []
         self.accounts_result: dict = {"accounts": []}
+        self.balances_result: dict = {"accounts": []}
         self.transactions_result: dict = {
             "accounts": [],
             "transactions": [],
@@ -21,6 +22,10 @@ class FakeGateway:
     def accounts_get(self, access_token: str) -> dict:
         self.calls.append(("accounts_get", access_token))
         return self.accounts_result
+
+    def accounts_balance_get(self, access_token: str, account_ids: list[str] | None) -> dict:
+        self.calls.append(("accounts_balance_get", access_token, account_ids))
+        return self.balances_result
 
     def transactions_get(
         self,
@@ -62,6 +67,7 @@ class FakePlaidApi:
     def __init__(self) -> None:
         self.calls: list[tuple[str, object]] = []
         self.accounts_response: object = ResponseBody({"accounts": []})
+        self.balances_response: object = ResponseBody({"accounts": []})
         self.transactions_response: object = ResponseBody(
             {"accounts": [], "transactions": [], "total_transactions": 0}
         )
@@ -74,6 +80,10 @@ class FakePlaidApi:
     def accounts_get(self, request: object) -> object:
         self.calls.append(("accounts_get", request))
         return self.accounts_response
+
+    def accounts_balance_get(self, request: object) -> object:
+        self.calls.append(("accounts_balance_get", request))
+        return self.balances_response
 
     def transactions_get(self, request: object) -> object:
         self.calls.append(("transactions_get", request))
