@@ -1,0 +1,40 @@
+[project]
+name = "plaid-mcp"
+version = "0.0.1"
+description = "Public Python MCP server for Plaid."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.9,<2",
+    "plaid-python>=28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage",
+]
+
+[project.scripts]
+plaid-mcp = "plaid_mcp.server:main"
+plaid-mcp-link = "plaid_mcp.link_setup:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["plaid_mcp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["plaid_mcp"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+exclude_lines = []
+partial_branches = []

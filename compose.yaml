@@ -1,0 +1,15 @@
+services:
+  plaid-mcp:
+    image: ghcr.io/qgjones9/plaid-mcp:0.0.1
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8006:8006"
+    environment:
+      PLAID_MCP_CONFIG_DIR: /config
+      PLAID_MCP_TRANSPORT: http
+      PLAID_MCP_HOST: 0.0.0.0
+      PLAID_MCP_PORT: "8006"
+    volumes:
+      - ${HOME}/.config/plaid-mcp:/config
+    user: "${UID:?Run with UID set to the output of id -u}:${GID:?Run with GID set to the output of id -g}"
